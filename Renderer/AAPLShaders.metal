@@ -20,10 +20,9 @@ typedef struct
     half4  color;
 } RasterizerData;
 
-
 vertex RasterizerData
-vertexShader(       uint        vertexID [[ vertex_id ]],
-             device AAPLVertex *vertices [[ buffer(AAPLVertexBufferIndexVertices) ]])
+vertexShader(             uint        vertexID [[ vertex_id ]],
+             const device AAPLVertex *vertices [[ buffer(AAPLVertexBufferIndexVertices) ]])
 {
     RasterizerData out;
 
@@ -61,7 +60,7 @@ fragmentShader(       RasterizerData            in                 [[ stage_in ]
 
     // Index into the buffer encoded in the argument buffer
     float colorScale = fragmentShaderArgs.exampleBuffer[index];
-    
+
     // Add sample and color values together and return the result
     return float4((1.0-textureSample.w) * colorScale * in.color + textureSample);
 }

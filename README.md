@@ -10,7 +10,7 @@ In this sample, you'll learn how to specify, encode, set, and access resources i
 
 ## Getting Started
 
-The Xcode project contains schemes for running the sample on macOS, iOS, or tvOS. Metal is not supported in the iOS or tvOS Simulator, so the iOS and tvOS schemes require a physical device to run the sample. The default scheme is macOS, which runs the sample as is on your Mac.
+The Xcode project contains schemes for running the sample on macOS, iOS, or tvOS.  The default scheme is macOS, which runs the sample as is on your Mac.
 
 ## CPU Overhead and Argument Buffers
 
@@ -80,8 +80,8 @@ This sample creates a `MTLArgumentBufferEncoder` from the `fragmentShader` funct
 ``` objective-c
 id <MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentShader"];
 
-id <MTLArgumentEncoder> argumentEncoder
-    = [fragmentFunction newArgumentEncoderWithBufferIndex:AAPLFragmentBufferIndexArguments];
+id <MTLArgumentEncoder> argumentEncoder =
+    [fragmentFunction newArgumentEncoderWithBufferIndex:AAPLFragmentBufferIndexArguments];
 ```
 
 The `encodedLength` property of `argumentEncoder` determines the size, in bytes, required to contain all the resources in the argument buffer. This sample uses that value to create a new buffer, `_fragmentShaderArgumentBuffer`, with a `length` parameter that matches the required size for the argument buffer.
@@ -169,4 +169,4 @@ The sample uses all four resources in the argument buffer to produce the final c
 
 ## Next Steps
 
-In this sample, you learned how to specify, encode, set, and access resources in an argument buffer. In the [Argument Buffers with Arrays and Resource Heaps](https://developer.apple.com/documentation/metal/fundamental_lessons/argument_buffers/argument_buffers_with_arrays_and_resource_heaps) sample, you'll learn how to combine argument buffers with arrays of resources and resource heaps.
+In this sample, you learned how to specify, encode, set, and access resources in an argument buffer. In the [Argument Buffers with Arrays and Resource Heaps](https://developer.apple.com/documentation/metal/buffers/argument_buffers_with_arrays_and_resource_heaps) sample, you'll learn how to combine argument buffers with arrays of resources and resource heaps.
