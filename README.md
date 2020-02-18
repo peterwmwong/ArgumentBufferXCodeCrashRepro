@@ -1,6 +1,6 @@
-# Basic Argument Buffers
+# Managing Groups of Resources with Argument Buffers
 
-Demonstrates how to manage groups of resources with an argument buffer.
+Create argument buffers to organize related resources.
 
 ## Overview
 
