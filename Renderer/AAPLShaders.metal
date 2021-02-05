@@ -10,15 +10,15 @@ Metal shaders used for this sample
 using namespace metal;
 
 // Include header shared between this Metal shader code and C code executing Metal API commands
-#import "AAPLShaderTypes.h"
+#include "AAPLShaderTypes.h"
 
 // Vertex shader outputs and per-fragment inputs.
-typedef struct
+struct RasterizerData
 {
     float4 position [[position]];
     float2 texCoord;
     half4  color;
-} RasterizerData;
+};
 
 vertex RasterizerData
 vertexShader(             uint        vertexID [[ vertex_id ]],
@@ -38,12 +38,12 @@ vertexShader(             uint        vertexID [[ vertex_id ]],
     return out;
 }
 
-typedef struct FragmentShaderArguments {
+struct FragmentShaderArguments {
     texture2d<half> exampleTexture  [[ id(AAPLArgumentBufferIDExampleTexture)  ]];
     sampler         exampleSampler  [[ id(AAPLArgumentBufferIDExampleSampler)  ]];
     device float   *exampleBuffer   [[ id(AAPLArgumentBufferIDExampleBuffer)   ]];
     uint32_t        exampleConstant [[ id(AAPLArgumentBufferIDExampleConstant) ]];
-} FragmentShaderArguments;
+};
 
 fragment float4
 fragmentShader(       RasterizerData            in                 [[ stage_in ]],

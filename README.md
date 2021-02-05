@@ -43,12 +43,12 @@ Argument buffers are defined as custom structures in the Metal Shading Language.
 The argument buffer in this sample is declared as a `FragmentShaderArguments` structure and this is its definition:
 
 ``` metal
-typedef struct FragmentShaderArguments {
+struct FragmentShaderArguments {
     texture2d<half> exampleTexture  [[ id(AAPLArgumentBufferIDExampleTexture)  ]];
     sampler         exampleSampler  [[ id(AAPLArgumentBufferIDExampleSampler)  ]];
     device float   *exampleBuffer   [[ id(AAPLArgumentBufferIDExampleBuffer)   ]];
     uint32_t        exampleConstant [[ id(AAPLArgumentBufferIDExampleConstant) ]];
-} FragmentShaderArguments;
+};
 ```
 
 This argument buffer contains the following resources:
@@ -169,4 +169,4 @@ The sample uses all four resources in the argument buffer to produce the final c
 
 ## Next Steps
 
-In this sample, you learned how to specify, encode, set, and access resources in an argument buffer. In the [Argument Buffers with Arrays and Resource Heaps](https://developer.apple.com/documentation/metal/buffers/argument_buffers_with_arrays_and_resource_heaps) sample, you'll learn how to combine argument buffers with arrays of resources and resource heaps.
+In this sample, you learned how to specify, encode, set, and access resources in an argument buffer. In the [Argument Buffers with Arrays and Resource Heaps](https://developer.apple.com/documentation/metal/buffers/using_argument_buffers_with_resource_heaps) sample, you'll learn how to combine argument buffers with arrays of resources and resource heaps.
