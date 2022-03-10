@@ -86,7 +86,8 @@ id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderW
 
 # Reproduction Steps
 
-1. git clone repository
+1. git clone this repository
+    > git clone git@github.com:peterwmwong/ArgumentBufferXCodeCrashRepro.git
 1. Open project in XCode
 1. Update Project settings to assign team
     - "Signing & Capabilities" -> "Signing" -> "Team"
