@@ -26,17 +26,44 @@
 
         // Initialize Rectangles Buffer (part of Arguments Buffer, if enabled)
         {
+            //  struct Rectangle
+            //  {
+            //      float4 color [[id(0)]];
+            //      float2 size  [[id(1)]];
+            //  };
+            MTLArgumentDescriptor* colorArg = [MTLArgumentDescriptor argumentDescriptor];
+            colorArg.index = 0;
+            colorArg.dataType = MTLDataTypeFloat4;
+            colorArg.access = MTLArgumentAccessReadOnly;
+            MTLArgumentDescriptor* sizeArg = [MTLArgumentDescriptor argumentDescriptor];
+            sizeArg.index = 1;
+            sizeArg.dataType = MTLDataTypeFloat2;
+            sizeArg.access = MTLArgumentAccessReadOnly;
+            
+            id<MTLArgumentEncoder> rectEncoder = [_device newArgumentEncoderWithArguments:@[colorArg, sizeArg]];
+            
             uint16_t numRects = 2;
-            _rectanglesBuffer = [_device newBufferWithLength:sizeof(Rectangle) * numRects
+            _rectanglesBuffer = [_device newBufferWithLength:rectEncoder.encodedLength * numRects
                                                      options:MTLResourceStorageModeShared];
             _rectanglesBuffer.label = @"Rects Buffer";
             
-            Rectangle * const rects = _rectanglesBuffer.contents;
-            rects[0].color = simd_make_float4(0.0, 1.0, 0.0, 1.0);
-            rects[0].size  = simd_make_float2(0.75, 0.75);
-            
-            rects[1].color = simd_make_float4(0.0, 0.0, 1.0, 1.0);
-            rects[1].size  = simd_make_float2(0.5, 0.25);
+            const simd_float4 colors[] = {
+                {0.0, 1.0, 0.0, 1.0},
+                {0.0, 0.0, 1.0, 1.0}
+            };
+            const simd_float2 sizes[] = {
+                {0.75, 0.75},
+                {0.5, 0.25}
+            };
+            for ( NSUInteger i = 0; i < numRects; ++i )
+            {
+                [rectEncoder setArgumentBuffer:_rectanglesBuffer
+                                        offset:rectEncoder.encodedLength * i];
+                {
+                    *((simd_float4 *)[rectEncoder constantDataAtIndex:0]) = colors[i];
+                    *((simd_float2 *)[rectEncoder constantDataAtIndex:1]) = sizes[i];
+                }
+            }
         }
         
         // Create our render pipeline and argument buffers
@@ -44,19 +71,26 @@
             id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
             id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
             id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentShader"];
-
+            
             #ifdef USE_ARGUMENTS_BUFFER
             {
-                id<MTLArgumentEncoder> argumentEncoder =
-                    [vertexFunction newArgumentEncoderWithBufferIndex:VertexBufferIndexArgumentBuffer];
-                _argumentBuffer = [_device newBufferWithLength:argumentEncoder.encodedLength options:0];
+                //  struct SceneArgumentBuffer {
+                //      constant Rectangle *rects [[ id(SceneArgumentBufferIDRectangles) ]];
+                //  };
+                MTLArgumentDescriptor* rectArg = [MTLArgumentDescriptor argumentDescriptor];
+                rectArg.index = SceneArgumentBufferIDRectangles;
+                rectArg.dataType = MTLDataTypePointer;
+                rectArg.access = MTLArgumentAccessReadOnly;
+                
+                id<MTLArgumentEncoder> argumentEncoder = [_device newArgumentEncoderWithArguments:@[rectArg]];
+                _argumentBuffer = [_device newBufferWithLength:argumentEncoder.encodedLength
+                                                       options:MTLResourceStorageModeManaged];
                 _argumentBuffer.label = @"Argument Buffer";
-
                 [argumentEncoder setArgumentBuffer:_argumentBuffer
                                             offset:0];
                 [argumentEncoder setBuffer:_rectanglesBuffer
                                     offset:0
-                                   atIndex:SceneArgumentBufferIDRectangles];
+                                   atIndex:0];
             }
             #endif
 

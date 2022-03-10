@@ -4,9 +4,15 @@ using namespace metal;
 
 #include "AAPLShaderTypes.h"
 
+struct Rectangle
+{
+    float4 color [[ id(RectangleArgumentBufferIDColor) ]];
+    float2 size  [[ id(RectangleArgumentBufferIDSize) ]];
+};
+
 #ifdef USE_ARGUMENTS_BUFFER
     struct SceneArgumentBuffer {
-        device Rectangle *rects [[ id(SceneArgumentBufferIDRectangles) ]];
+        constant Rectangle *rects [[ id(SceneArgumentBufferIDRectangles) ]];
     };
 #endif
 
@@ -20,18 +26,17 @@ vertex VertexOut
 vertexShader(                uint                 instanceID [[ instance_id ]],
                              uint                 vertexID   [[ vertex_id ]],
              #ifdef USE_ARGUMENTS_BUFFER
-                    constant SceneArgumentBuffer &args       [[ buffer(VertexBufferIndexArgumentBuffer) ]]
+                    constant SceneArgumentBuffer *args       [[ buffer(VertexBufferIndexArgumentBuffer) ]]
              #else
                     constant Rectangle           *rects      [[ buffer(VertexBufferIndexArgumentBuffer) ]]
              #endif
              )
 {
     #ifdef USE_ARGUMENTS_BUFFER
-        const Rectangle rect = args.rects[instanceID];
-    #else
-        const Rectangle rect = rects[instanceID];
+        const constant Rectangle *rects = args->rects;
     #endif
 
+    const Rectangle rect = rects[instanceID];
     const vector_float4 color = rect.color;
     const vector_float2 size = rect.size;
     switch (vertexID) {

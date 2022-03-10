@@ -17,17 +17,17 @@ enum VertexBufferIndex
     VertexBufferIndexArgumentBuffer,
 };
 
+enum RectangleArgumentBufferID
+{
+    RectangleArgumentBufferIDColor = 0,
+    RectangleArgumentBufferIDSize
+};
+
 #ifdef USE_ARGUMENTS_BUFFER
     enum SceneArgumentBufferID
     {
         SceneArgumentBufferIDRectangles,
     };
 #endif
-
-typedef struct Rectangle
-{
-    vector_float4 color;
-    vector_float2 size;
-} Rectangle;
 
 #endif /* ShaderTypes_h */
