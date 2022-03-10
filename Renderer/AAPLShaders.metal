@@ -1,66 +1,56 @@
-/*
-See LICENSE folder for this sample’s licensing information.
-
-Abstract:
-Metal shaders used for this sample
-*/
-
 #include <metal_stdlib>
 
 using namespace metal;
 
-// Include header shared between this Metal shader code and C code executing Metal API commands
 #include "AAPLShaderTypes.h"
 
-// Vertex shader outputs and per-fragment inputs.
-struct RasterizerData
+#ifdef USE_ARGUMENTS_BUFFER
+    struct SceneArgumentBuffer {
+        device Rectangle *rects [[ id(SceneArgumentBufferIDRectangles) ]];
+    };
+#endif
+
+struct VertexOut
 {
     float4 position [[position]];
-    float2 texCoord;
-    half4  color;
+    float4 color [[shared]];
 };
 
-vertex RasterizerData
-vertexShader(             uint        vertexID [[ vertex_id ]],
-             const device AAPLVertex *vertices [[ buffer(AAPLVertexBufferIndexVertices) ]])
+vertex VertexOut
+vertexShader(                uint                 instanceID [[ instance_id ]],
+                             uint                 vertexID   [[ vertex_id ]],
+             #ifdef USE_ARGUMENTS_BUFFER
+                    constant SceneArgumentBuffer &args       [[ buffer(VertexBufferIndexArgumentBuffer) ]]
+             #else
+                    constant Rectangle           *rects      [[ buffer(VertexBufferIndexArgumentBuffer) ]]
+             #endif
+             )
 {
-    RasterizerData out;
+    #ifdef USE_ARGUMENTS_BUFFER
+        const Rectangle rect = args.rects[instanceID];
+    #else
+        const Rectangle rect = rects[instanceID];
+    #endif
 
-    float2 position = vertices[vertexID].position;
-
-    out.position.xy = position;
-    out.position.z  = 0.0;
-    out.position.w  = 1.0;
-
-    out.texCoord = vertices[vertexID].texCoord;
-    out.color    = (half4) vertices[vertexID].color;
-
-    return out;
+    const vector_float4 color = rect.color;
+    const vector_float2 size = rect.size;
+    switch (vertexID) {
+            // Top Left corner
+            case 0: return { {     0,       0, 0, 1}, color };
+            // Top Right corner
+            case 1: return { {size.x,       0, 0, 1}, color };
+            // Bottom Left corner
+            case 2: return { {     0, -size.y, 0, 1}, color };
+            // Bottom Right corner
+            case 3: return { {size.x, -size.y, 0, 1}, color };
+    }
+    
+    // Shouldn't get here. vertexCount is 4 should ensure 0 <= vertexID <= 3.
+    return { float4(0), float4(0) };
 }
 
-struct FragmentShaderArguments {
-    texture2d<half> exampleTexture  [[ id(AAPLArgumentBufferIDExampleTexture)  ]];
-    sampler         exampleSampler  [[ id(AAPLArgumentBufferIDExampleSampler)  ]];
-    device float   *exampleBuffer   [[ id(AAPLArgumentBufferIDExampleBuffer)   ]];
-    uint32_t        exampleConstant [[ id(AAPLArgumentBufferIDExampleConstant) ]];
-};
-
 fragment float4
-fragmentShader(       RasterizerData            in                 [[ stage_in ]],
-               device FragmentShaderArguments & fragmentShaderArgs [[ buffer(AAPLFragmentBufferIndexArguments) ]])
+fragmentShader(VertexOut in [[ stage_in ]])
 {
-    // Get the sampler encoded in the argument buffer
-    sampler exampleSampler = fragmentShaderArgs.exampleSampler;
-
-    // Sample the texture encoded in the argument buffer
-    half4 textureSample = fragmentShaderArgs.exampleTexture.sample(exampleSampler, in.texCoord);
-
-    // Use the fragment position and the constant encoded in the argument buffer to calculate an array index
-    uint32_t index = (uint32_t)in.position.x % fragmentShaderArgs.exampleConstant;
-
-    // Index into the buffer encoded in the argument buffer
-    float colorScale = fragmentShaderArgs.exampleBuffer[index];
-
-    // Add sample and color values together and return the result
-    return float4((1.0-textureSample.w) * colorScale * in.color + textureSample);
+    return in.color;
 }

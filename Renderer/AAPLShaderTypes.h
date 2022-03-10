@@ -1,44 +1,33 @@
-/*
-See LICENSE folder for this sample’s licensing information.
-
-Abstract:
-Header containing types and enum constants shared between Metal shaders and C/ObjC source
-*/
 #ifndef ShaderTypes_h
 #define ShaderTypes_h
 
 #include <simd/simd.h>
 
-// Buffer index values shared between shader and C code to ensure Metal shader buffer inputs match
-//   Metal API buffer set calls
-typedef enum AAPLVertexBufferIndex
-{
-    AAPLVertexBufferIndexVertices = 0,
-} AAPLVertexBufferIndex;
+// =======================================
+//     Use Arguments Buffer (#define)
+//                 OR
+// Use Rectangles Buffer directly (#undef)
+// =======================================
+#define USE_ARGUMENTS_BUFFER
+//#undef USE_ARGUMENTS_BUFFER
+// =======================================
 
-// Buffer index values shared between shader and C code to ensure Metal shader buffer inputs match
-//   Metal API buffer set calls
-typedef enum AAPLFragmentBufferIndex
+enum VertexBufferIndex
 {
-    AAPLFragmentBufferIndexArguments = 0,
-} AAPLFragmentBufferIndex;
+    VertexBufferIndexArgumentBuffer,
+};
 
-// Argument buffer indices shared between shader and C code to ensure Metal shader buffer
-//   input match Metal API texture set calls
-typedef enum AAPLArgumentBufferID
+#ifdef USE_ARGUMENTS_BUFFER
+    enum SceneArgumentBufferID
+    {
+        SceneArgumentBufferIDRectangles,
+    };
+#endif
+
+typedef struct Rectangle
 {
-    AAPLArgumentBufferIDExampleTexture,
-    AAPLArgumentBufferIDExampleSampler,
-    AAPLArgumentBufferIDExampleBuffer,
-    AAPLArgumentBufferIDExampleConstant
-} AAPLArgumentBufferID;
-
-//  Defines the layout of each vertex in the array of vertices set as an input to our
-//    Metal vertex shader.
-typedef struct AAPLVertex {
-    vector_float2 position;
-    vector_float2 texCoord;
     vector_float4 color;
-} AAPLVertex;
+    vector_float2 size;
+} Rectangle;
 
 #endif /* ShaderTypes_h */
